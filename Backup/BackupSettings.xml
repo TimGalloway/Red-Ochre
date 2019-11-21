@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<Settings>
+	<General>
+		<backuproot>c:\backup</backuproot>
+		<dropboxpath>C:\Users\Tim\Google Drive\Projects\Red Ochre\Backup\Dropbox</dropboxpath>
+		<numdays>1</numdays>
+	</General>
+	<IIS>
+		<iispath>C:\inetpub</iispath>
+		<inetpubdirs>atomglobal.com.au,globalrio.redochre.cloud,wwwroot\aspnet_client</inetpubdirs>
+	</IIS>
+	<MSSql>
+		<sqlServerInstance>.</sqlServerInstance>
+	</MSSql>
+	<MySql>
+		<mysqlpath>C:\Program Files\MySQL\MySQL Server 8.0\bin</mysqlpath>
+		<mysqlconfig>C:\source\Red Ochre\Backup\my.cnf</mysqlconfig>
+		<mysqldatabases>sakila,world</mysqldatabases>
+	</MySql>
+</Settings>

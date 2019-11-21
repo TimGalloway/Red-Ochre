@@ -17,26 +17,25 @@ Need to have modules installed
 Parameters:
 	backupaction = "Log" or "Database"
 #>
+# Import xml settings
+[xml]$ConfigFile = Get-Content "BackupSettings.xml"
+
 # General Settings
-$backuproot = "c:\backup"
-$dropboxpath = "C:\Users\Tim\Google Drive\Projects\Red Ochre\Backup\Dropbox"
-$numdays = "1"
+$backuproot = $ConfigFile.Settings.General.backuproot
+$dropboxpath = $ConfigFile.Settings.General.dropboxpath
+$numdays = $ConfigFile.Settings.General.numdays
 
 # IIS Settings
-$iispath = "C:\inetpub"
-$inetpubdirs= "atomglobal.com.au","globalrio.redochre.cloud","wwwroot\aspnet_client"
-#$inetpubdirs= "*"
+$iispath = $ConfigFile.Settings.IIS.iispath
+$inetpubdirs= $ConfigFile.Settings.IIS.inetpubdirs
 
 # MSSQL Settings
-$sqlServerInstance = "."
+$sqlServerInstance = $ConfigFile.Settings.MSSql.sqlServerInstance
 
 # MySQL Settings
-$mysqlpath = "C:\Program Files\MySQL\MySQL Server 8.0\bin"
-$mysqlconfig = "C:\source\Red Ochre\Backup\my.cnf"
-$mysqldatabases = "sakila", "world"
-
-
-
+$mysqlpath = $ConfigFile.Settings.MySql.mysqlpath
+$mysqlconfig = $ConfigFile.Settings.MySql.mysqlconfig
+$mysqldatabases = $ConfigFile.Settings.MySql.mysqldatabases
 
 # End of user settings
 $backuptype = $Args[0]
@@ -69,7 +68,8 @@ Set-Location $backupfolder
 if ($backuptype -eq "Database"){
     # Backup the IIS files
     New-Item "iis" -ItemType Directory
-    foreach ($dir in $inetpubdirs){
+    $inetpubdirsArray = $inetpubdirs.split(",")
+    foreach ($dir in $inetpubdirsArray){
     	Copy-Item -Path $iispath\$dir -Destination $backuptemp\$backupfolder\iis\$dir -Recurse
     }
 
@@ -91,7 +91,8 @@ Get-SqlDatabase -ServerInstance $sqlServerInstance | Where { $_.Name -ne 'tempdb
 Set-Location $backuptemp\$backupfolder
 New-Item "mysqldb" -ItemType Directory
 Set-Location $mysqlpath
-foreach ($mysqldb in $mysqldatabases){
+$mysqldatabasesArray = $mysqldatabases.split(",")
+foreach ($mysqldb in $mysqldatabasesArray){
     cmd /c mysqldump -h localhost -u root -ptl1000 $mysqldb > $backuptemp\$backupfolder\mysqldb\$mysqldb.sql
 }
 
