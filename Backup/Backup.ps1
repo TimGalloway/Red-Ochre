@@ -17,18 +17,26 @@ Need to have modules installed
 Parameters:
 	backupaction = "Log" or "Database"
 #>
+# General Settings
 $backuproot = "c:\backup"
-$iispath = "C:\inetpub"
-$sqlServerInstance = "."
 $dropboxpath = "C:\Users\Tim\Google Drive\Projects\Red Ochre\Backup\Dropbox"
-$inetpubdirs= "atomglobal.com.au","globalrio.redochre.cloud","wwwroot\aspnet_client"
-<#$inetpubdirs= "*"#>
 $numdays = "1"
+
+# IIS Settings
+$iispath = "C:\inetpub"
+$inetpubdirs= "atomglobal.com.au","globalrio.redochre.cloud","wwwroot\aspnet_client"
+#$inetpubdirs= "*"
+
+# MSSQL Settings
+$sqlServerInstance = "."
 
 # MySQL Settings
 $mysqlpath = "C:\Program Files\MySQL\MySQL Server 8.0\bin"
 $mysqlconfig = "C:\source\Red Ochre\Backup\my.cnf"
 $mysqldatabases = "sakila", "world"
+
+
+
 
 # End of user settings
 $backuptype = $Args[0]
@@ -85,7 +93,6 @@ New-Item "mysqldb" -ItemType Directory
 Set-Location $mysqlpath
 foreach ($mysqldb in $mysqldatabases){
     cmd /c mysqldump -h localhost -u root -ptl1000 $mysqldb > $backuptemp\$backupfolder\mysqldb\$mysqldb.sql
-    #.\mysqldump.exe --defaults-file=$mysqlconfig --result-file=$backuptemp\$backupfolder\mysqldb\$mysqldb.sql --databases $mysqldb /c > $backuptemp\$backupfolder\mysqldb\$mysqldb.sql
 }
 
 # Compress the folder
