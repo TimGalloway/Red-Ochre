@@ -5,9 +5,9 @@ Backup the IIS config
 Backup the SQL Server
 Compress the files
 Copy to DropBox Folder
+  Allow only keep given number of days of backups
 
-ToDo: Allow only keep given number of days of backups
-      Backup MySql databases
+ToDo: Backup MySql databases
       
 
 Need to run as Administrator
@@ -25,6 +25,12 @@ $inetpubdirs= "atomglobal.com.au","globalrio.redochre.cloud","wwwroot\aspnet_cli
 <#$inetpubdirs= "*"#>
 $numdays = "1"
 
+# MySQL Settings
+$mysqlpath = "C:\Program Files\MySQL\MySQL Server 8.0\bin"
+$mysqlconfig = "C:\source\Red Ochre\Backup\my.cnf"
+$mysqldatabases = "sakila", "world"
+
+# End of user settings
 $backuptype = $Args[0]
 $backuptemp = "$backuproot\temp"
 $zippath = "$backuproot\zips"
@@ -72,6 +78,15 @@ Set-Location $backuptemp\$backupfolder
 New-Item "db" -ItemType Directory
 Set-Location $backuptemp\$backupfolder\db
 Get-SqlDatabase -ServerInstance $sqlServerInstance | Where { $_.Name -ne 'tempdb' } | foreach{ Backup-SqlDatabase -DatabaseObject $_ -CompressionOption Off -BackupContainer "$backuptemp\$backupfolder\db" -BackupFile "$($_.NAME)_db.bak" -BackupAction $backuptype}
+
+# Backup all noted MySQL databases
+Set-Location $backuptemp\$backupfolder
+New-Item "mysqldb" -ItemType Directory
+Set-Location $mysqlpath
+foreach ($mysqldb in $mysqldatabases){
+    cmd /c mysqldump -h localhost -u root -ptl1000 $mysqldb > $backuptemp\$backupfolder\mysqldb\$mysqldb.sql
+    #.\mysqldump.exe --defaults-file=$mysqlconfig --result-file=$backuptemp\$backupfolder\mysqldb\$mysqldb.sql --databases $mysqldb /c > $backuptemp\$backupfolder\mysqldb\$mysqldb.sql
+}
 
 # Compress the folder
 Compress-Archive -Path $backuptemp\$backupfolder -DestinationPath $zippath\$backupfolder.zip
